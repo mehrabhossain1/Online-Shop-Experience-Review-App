@@ -42,7 +42,10 @@ export default function ReviewForm({
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit((data) => {
+                    onSubmit(data);
+                    form.reset(); // <-- This clears the form after submit
+                })}
                 className="space-y-4 bg-white p-4 rounded-lg shadow"
             >
                 <FormField

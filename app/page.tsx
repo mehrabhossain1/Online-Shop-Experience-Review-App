@@ -6,6 +6,7 @@ import ReviewCard from "@/components/ReviewCard";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewSkeleton from "@/components/ReviewSkeleton";
 import SearchFilterBar from "@/components/SearchFilterBar";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Review } from "@/types/review.type";
 import { useEffect, useMemo, useState } from "react";
@@ -20,20 +21,20 @@ export default function Home() {
     const [editId, setEditId] = useState<string | null>(null);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [ratingFilter, setRatingFilter] = useState<string>("all");
     const [isFiltering, setIsFiltering] = useState(false);
 
-    // Debounce searchTerm changes
-    useEffect(() => {
-        setIsFiltering(true);
-        const handler = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-            setIsFiltering(false);
-        }, 300);
+    // Debounced search term using custom hook
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-        return () => clearTimeout(handler);
-    }, [searchTerm]);
+    // Track filtering state based on debounced value
+    useEffect(() => {
+        if (searchTerm !== debouncedSearchTerm) {
+            setIsFiltering(true);
+        } else {
+            setIsFiltering(false);
+        }
+    }, [searchTerm, debouncedSearchTerm]);
 
     const addReview = (data: {
         shopName: string;
